@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('shop:syncfirst')
-                 ->everyTenMinutes()
+                 ->everyFiveMinutes()
                  ->appendOutputTo('storage/logs/cron.log');
         $schedule->command('shop:syncOrders')
                  ->everyThirtyMinutes()
