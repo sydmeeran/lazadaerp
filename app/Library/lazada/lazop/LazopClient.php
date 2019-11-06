@@ -70,6 +70,9 @@ class LazopClient
         curl_setopt($ch, CURLOPT_FAILONERROR, false);
 	    curl_setopt($ch, CURLOPT_HEADER, false);
 	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1800); 
+		curl_setopt($ch, CURLOPT_TIMEOUT, 1800); //timeout in seconds
+		set_time_limit(1800); // to infinity for example
 
 	    if($headerFields)
 	    {

@@ -23,7 +23,8 @@ class CreateShopTable extends Migration
             $table->string('refresh_token');
             $table->string('access_token');
             $table->string('expires_in');
-            $table->string('active')->default(true);
+            $table->string('is_first_time')->default(true);
+            $table->string('active')->default('2');
             $table->timestamps();
         });
     }

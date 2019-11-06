@@ -28,16 +28,34 @@ class ShopController extends Controller
             ['link'=>"/",'name'=>"Home"],['link'=> action('ShopController@index'), 'name'=>"Shop List"], ['name'=>"Shops"]
         ];
         if ( request()->ajax()) {
-           $shop = Shop::where('user_id', $request->user()->id);
-
-           $shop->orderBy('updated_at', 'desc');
+           $shop = Shop::with('orders')->where('shop.user_id', $request->user()->id)->select('shop.*')->orderBy('shop.updated_at', 'desc');
             return Datatables::eloquent($shop)
-            ->addColumn('total_shipped', function(Shop $shop) {
-                $orders = $shop->getTotalOrders('shipped');
-                return '<div class="chip chip-success"><div class="chip-body"><div class="chip-text">'. 
-                isset($orders['data']['count']) ?  $orders['data']['count'] : 0 .'</div></div></div>';
-             })  
-            ->rawColumns(['total_shipped'])
+            ->addColumn('statusChip', function(Shop $shop) {
+                            $html = '';
+                            if($shop->active == 1){
+                                $html = '<div class="chip chip-primary"><div class="chip-body"><div class="chip-text">Active</div></div></div>';
+                            }else if($shop->active == 2){
+                                $html = '<div class="chip chip-info"><div class="chip-body"><div class="chip-text">Syncing</div></div></div>';
+                            }
+                           return $html;
+                        })
+            ->addColumn('pending_count', function(Shop $shop) {
+                           return '<div class="chip chip-danger"><div class="chip-body"><div class="chip-text">'.
+                        $shop->orders('pending')->count().'</div></div></div>';
+                        })
+            ->addColumn('ready_to_ship_count', function(Shop $shop) {
+                           return '<div class="chip chip-warning"><div class="chip-body"><div class="chip-text">'.
+                        $shop->orders('ready_to_ship')->count().'</div></div></div>';
+                        })
+            ->addColumn('shipped_count', function(Shop $shop) {
+                           return '<div class="chip chip-success"><div class="chip-body"><div class="chip-text">'.
+                        $shop->orders('shipped')->count().'</div></div></div>';
+                        })
+            ->addColumn('delivered_count', function(Shop $shop) {
+                           return '<div class="chip chip-success"><div class="chip-body"><div class="chip-text">'.
+                        $shop->orders('delivered')->count().'</div></div></div>';
+                        })
+            ->rawColumns(['shipped_count', 'pending_count', 'ready_to_ship_count', 'delivered_count', 'statusChip'])
             ->make(true);
         }
 
@@ -111,7 +129,7 @@ class ShopController extends Controller
             $data['email'] = $responseData['account'];
             $data['expires_in'] = Carbon::now()->addDays(6);
             $data['user_id'] = $request->user()->id;
-            Shop::create($data);
+            $shop = Shop::create($data);
             DB::commit();
             $output = ['success' => 1,
                         'msg' => 'Shop added successfully!',

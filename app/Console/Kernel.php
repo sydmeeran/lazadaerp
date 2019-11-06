@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Shop;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,8 +25,22 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('delete:users')
-                 ->everyMinute();
+        $schedule->command('shop:syncfirst')
+                 ->everyTenMinutes()
+                 ->when(function(){
+                    if(Shop::where('is_first_time', true)->count() == 0){
+                        return true;
+                    }else{
+                        return true;
+                    }
+                 })
+                 ->appendOutputTo('storage/logs/cron.log');
+        $schedule->command('shop:syncOrders')
+                 ->everyThirtyMinutes()
+                 ->appendOutputTo('storage/logs/cron.log');
+        $schedule->command('shop:updateToken')
+                 ->cron('0 0 */5 * *')
+                 ->appendOutputTo('storage/logs/cron.log');
     }
 
     /**

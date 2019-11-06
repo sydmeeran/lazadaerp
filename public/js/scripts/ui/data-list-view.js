@@ -154,6 +154,13 @@ $(document).ready(function () {
   $(".dt-checkboxes").on("click", function () {
     $(this).closest("tr").toggleClass("selected");
   });
+
+  $(".data-list-view, .data-thumb-view").on("click", "tbody td", function () {
+    var dtCheckbox = $(this).parent("tr").find(".dt-checkboxes-cell .dt-checkboxes")
+    $(this).closest("tr").toggleClass("selected");
+    dtCheckbox.prop("checked", !dtCheckbox.prop("checked"))
+  });
+  
   $(".dt-checkboxes-select-all input").on("click", function () {
     $(".data-list-view").find("tbody tr").toggleClass("selected")
     $(".data-thumb-view").find("tbody tr").toggleClass("selected")

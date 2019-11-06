@@ -29,41 +29,36 @@ class OrderController extends Controller
             ['link'=>"/",'name'=>"Home"],['link'=> action('OrderController@index'), 'name'=>"Orders List"], ['name'=>"Orders"]
         ];
         $all_shops = Shop::where('user_id', $request->user()->id)->orderBy('updated_at', 'desc')->get();
-        $statuses = Shop::$statuses;
+        $statuses = Order::$statuses;
+        // foreach($all_shops as $shopSync){
+        //     $shopSync->syncOrders(Carbon::now()->subDays(2)->format('Y-m-d'), '+1 day');
+        // }
         
     if ( request()->ajax()) {
            $shops = Shop::where('user_id', $request->user()->id)->orderBy('updated_at', 'desc');
            if($request->get('shop', 'all') != 'all'){
                 $shops->where('id', $request->get('shop'));
            }
+           $shops_id = $shops->pluck('id')->toArray();
            $statuses = $request->get('status', ['shipped']);
-           $all_orders = [];
-           foreach($shops->get() as $shop){
-                if($request->get('search')){
-                        $orders = $shop->searchOrderID($request->get('search'));
-                        $all_orders = array_merge_recursive($orders, $all_orders);
-                }else{
-                    foreach($statuses as $status){
-                        $orders = $shop->getTotalOrders($status);
-                        $all_orders = array_merge_recursive($orders, $all_orders);
-                    }
-                }
-            }
-            $all_orders = isset($all_orders['data']['orders']) ? $all_orders : Shop::dummyOrder();
-            return Datatables::collection($all_orders['data']['orders'])
-                    ->filter(function ($keyword){})
-                    ->setTotalRecords(is_numeric($all_orders['data']['count']) ? $all_orders['data']['count'] : array_sum($all_orders['data']['count']))
-                    ->setFilteredRecords(is_numeric($all_orders['data']['count']) ? $all_orders['data']['count'] : array_sum($all_orders['data']['count']))
-                    ->addColumn('actions', function($order) {
-                            return $html = Shop::getActionsDropdown($order);
+           $orders = Order::with('shop')->whereIn('shop_id', $shops_id)->whereIn('status', $statuses)->orderByRaw('CASE WHEN status = "pending" THEN 1 WHEN status = "ready_to_ship" THEN 2 WHEN status = "shipped" THEN 3 else 4 END');
+
+            return Datatables::eloquent($orders)
+                ->addColumn('shop', function(Order $order) {
+                            return $order->shop ? $order->shop->short_name : '';
                                 })
-                    ->addColumn('created_at', function($order) {
-                            return Utilities::format_date($order['created_at'], 'M d, Y H:i');
+                ->addColumn('statusDisplay', function(Order $order) {
+                            return ucwords(str_replace('_', ' ', $order->status));
                                 })
-                    ->skipPaging(true)
-                    ->rawColumns(['actions'])
-                    ->make(true);
-    }
+                ->addColumn('actions', function(Order $order) {
+                            return $order->getActionsDropdown();
+                                })
+                ->addColumn('created_at', function(Order $order) {
+                            return Utilities::format_date($order->created_at, 'M d, Y H:i');
+                                })
+                ->rawColumns(['actions'])
+                ->make(true);
+        }
         
         return view('order.index', [
             'breadcrumbs' => $breadcrumbs,
@@ -138,27 +133,19 @@ class OrderController extends Controller
         //
     }
 
-    public function cancel(Request $request){
-        $order_id = $request->get('order_id');
-        if($order_id == null){
-            $output = ['success' => 0,
-                        'msg' => 'Invalid Order ID. Please try again later'
-                    ];
-            return response()->json($output);
-        }
+    public function cancel(Order $order,Request $request){
         try {
             $msg = $request->get('input');
-            $shop = Shop::findOrFail($request->get('shop_id'));
-            $items = $shop->getOrderItems($order_id);
-            $item_ids = $shop->getItemIds($items);  
-            $result = $shop->cancel($item_ids, $msg);
+            $items = $order->getOrderItems();
+            $item_ids = $order->getItemIds($items);  
+            $result = $order->cancel($item_ids, $msg);
             if(isset($result['message'])){
                 $output = ['success' => 0,
                         'msg' => $result['message'],
                     ];
             }else{
                 $output = ['success' => 1,
-                    'msg' => 'Orders '. $order_id .' Canceled',
+                    'msg' => 'Orders '. $order->id .' Canceled',
                 ];
             }
             
@@ -172,26 +159,19 @@ class OrderController extends Controller
         return response()->json($output);
     }
 
-    public function readyToShip(Request $request){
+    public function readyToShip(Order $order,Request $request){
         $order_id = $request->get('order_id');
-        if($order_id == null){
-            $output = ['success' => 0,
-                        'msg' => 'Invalid Order ID. Please try again later'
-                    ];
-            return response()->json($output);
-        }
         try {
-            $shop = Shop::findOrFail($request->get('shop_id'));
-            $items = $shop->getOrderItems($order_id);
-            $item_ids = $shop->getItemIds($items);
-            $result = $shop->readyToShip($item_ids);
+            $items = $order->getOrderItems();
+            $item_ids = $order->getItemIds($items);  
+            $result = $order->readyToShip($item_ids);
             if(isset($result['message'])){
                 $output = ['success' => 0,
                         'msg' => $result['message'],
                     ];
             }else{
                 $output = ['success' => 1,
-                    'msg' => 'Orders '. $order_id .' Ready to Ship',
+                    'msg' => 'Orders '. $order->id .' Ready to Ship',
                 ];
             }
             

@@ -29,8 +29,8 @@ Route::group(['middleware' => 'auth'], function()
 	Route::get('/shop/form', 'ShopController@form')->name('shop.form');
 	Route::resource('/shop', 'ShopController');
 
-	Route::get('/order/readyToShip', 'OrderController@readyToShip')->name('order.readyToShip');
-	Route::get('/order/cancel', 'OrderController@cancel')->name('order.cancel');
+	Route::get('/order/readyToShip/{order}', 'OrderController@readyToShip')->name('order.readyToShip');
+	Route::get('/order/cancel/{order}', 'OrderController@cancel')->name('order.cancel');
 	Route::resource('/order', 'OrderController');
 
 

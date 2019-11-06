@@ -889,7 +889,7 @@ $(document).ready(function () {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\laragon\www\lazada\resources\js\core\app.js */"./resources/js/core/app.js");
+module.exports = __webpack_require__(/*! C:\laragon\www\lazadaerp\resources\js\core\app.js */"./resources/js/core/app.js");
 
 
 /***/ })

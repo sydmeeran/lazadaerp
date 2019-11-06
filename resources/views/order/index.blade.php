@@ -21,14 +21,14 @@
     <div class="card-content">
       <div class="card-body">
         <div class="row">
-          <div class="col-sm-4 col-12">
+      <!--     <div class="col-sm-4 col-12">
             <div class="text-bold-600 font-medium-2">
               Order ID:
             </div>
             <div class="form-group">
               <input type="text" id="search" class="form-control inputSearch" placeholder="Input order id here..">
             </div>
-          </div>
+          </div> -->
           <div class="col-sm-4 col-12">
             <div class="text-bold-600 font-medium-2">
               Shop:
@@ -114,14 +114,14 @@
   <!-- datatables -->
   <script type="text/javascript">
   var columnns = [
-            { data: 'order_id', name: 'order_id', orderable : false},
-            { data: 'order_id', name: 'order_id', orderable : false},
-            { data: 'seller', name: 'seller', orderable : false},
+            { data: 'id', name: 'id', orderable : false},
+            { data: 'id', name: 'id', orderable : false},
+            { data: 'shop', name: 'shop.short_name'},
             { data: 'created_at', name: 'created_at' },
             { data: 'payment_method', name: 'payment_method' },
             { data: 'price', name: 'price' },
             { data: 'items_count', name: 'items_count' },
-            { data: 'status', name: 'status' },
+            { data: 'statusDisplay', name: 'status' },
             { data: 'actions', name: 'actions' },
         ];
   var table_route = {
@@ -129,7 +129,6 @@
           data: function (data) {
                 data.shop = $("#shop").val();
                 data.status = $("#status").val();
-                data.search = $("#search").val();
             }
         };
   var buttons = [
@@ -139,13 +138,13 @@
             // },
             // className: "btn-outline-primary margin-r-10"}
             ];
-  var BInfo = false;
-  var bFilter = false;
+  var BInfo = true;
+  var bFilter = true;
   function created_row_function(row, data, dataIndex){
-    $(row).attr('data-id', JSON.parse(data.order_id));
+    $(row).attr('data-id', JSON.parse(data.id));
   }
-  var aLengthMenu = [[4, 10, 15, 20],[4, 10, 15, 20]];
-  var pageLength = 10;
+  var aLengthMenu = [[20, 50, 100, 500],[20, 50, 100, 500]];
+  var pageLength = 20;
 </script>
 <script src="{{ asset(mix('js/scripts/ui/data-list-view.js')) }}"></script>
 <script type="text/javascript">

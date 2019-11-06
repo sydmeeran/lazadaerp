@@ -29,4 +29,19 @@ class Utilities extends Model
     public static function nameLink($action, $name){
     	return '<a target="_blank" href="'. $action .'"> '. $name .' <a/>';
     }
+
+    public static function getDaterange($first, $last, $output_format = 'd/m/Y', $step = '+5 day') {
+
+    $dates = array();
+    $current = strtotime($first);
+    $last = strtotime($last);
+
+    while( $current <= $last ) {
+
+        $dates[] = date($output_format, $current);
+        $current = strtotime($step, $current);
+    }
+
+    return $dates;
+}
 }

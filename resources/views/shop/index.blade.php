@@ -31,7 +31,6 @@
         </div>
       </div>
     </div>
-
     {{-- DataTable starts --}}
     <div class="table-responsive">
       <table class="table data-list-view">
@@ -41,7 +40,11 @@
             <th>ID</th>
             <th>NAME</th>
             <th>Short Name</th>
-            <th>Total Shipped</th>
+            <th>Status</th>
+            <th>Pending</th>
+            <th>Ready to Ship</th>
+            <th>Shipped</th>
+            <th>Delivered</th>
             <th>CREATED AT</th>
             <th>UPDATED AT</th>
           </tr>
@@ -74,7 +77,11 @@
             { data: 'id', name: 'id' ,orderable : false},
             { data: 'name', name: 'name' },
             { data: 'short_name', name: 'short_name' },
-            { data: 'total_shipped', name: 'total_shipped' },
+            { data: 'statusChip', name: 'statusChip' },
+            { data: 'pending_count', name: 'pending_count' },
+            { data: 'ready_to_ship_count', name: 'ready_to_ship_count' },
+            { data: 'shipped_count', name: 'shipped_count' },
+            { data: 'delivered_count', name: 'delivered_count' },
             { data: 'created_at', name: 'created_at' },
             { data: 'updated_at', name: 'updated_at' },
         ];
