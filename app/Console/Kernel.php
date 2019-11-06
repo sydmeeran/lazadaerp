@@ -27,13 +27,6 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('shop:syncfirst')
                  ->everyTenMinutes()
-                 ->when(function(){
-                    if(Shop::where('is_first_time', true)->count() == 0){
-                        return true;
-                    }else{
-                        return true;
-                    }
-                 })
                  ->appendOutputTo('storage/logs/cron.log');
         $schedule->command('shop:syncOrders')
                  ->everyThirtyMinutes()

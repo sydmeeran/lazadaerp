@@ -43,7 +43,7 @@ class syncFirstTime extends Command
             $shop->syncOrders();
             $shop->touch();
             $shop->update(['is_first_time', false]);
-            echo 'Synced orders for first time successfully';
         }
+         echo 'Synced orders for first time successfully';
     }
 }
